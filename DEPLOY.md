@@ -71,4 +71,19 @@ make fix-mime
 | `python3 -m deploy assets` | دریافت فونت و vendor |
 | `python3 -m deploy deploy ...` | آپلود با آرگومان |
 
+## مستندات (GitHub Pages)
+
+پس از push به `main`، workflow [`static.yml`](.github/workflows/static.yml) سایت مستندات را می‌سازد.
+
+لوکال:
+
+```bash
+make docs
+make docs-serve   # http://localhost:8081
+```
+
+آدرس منتشرشده (پس از فعال‌سازی Pages در تنظیمات مخزن):
+
+`https://raminnietzsche.github.io/s3_policy_gen/`
+
 </div>

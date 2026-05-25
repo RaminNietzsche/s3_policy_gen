@@ -4,14 +4,6 @@
 
 </div>
 
-<div dir="ltr" align="left">
-
-[![License: MIT](https://img.shields.io/badge/License-MIT-teal.svg)](LICENSE)
-[![Python](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/)
-[![Arvan Cloud](https://img.shields.io/badge/S3-Arvan%20Cloud-00baba.svg)](https://www.arvancloud.ir/fa/products/cloud-storage)
-
-</div>
-
 <div dir="rtl" align="right">
 
 ابزار وب **فارسی و راست‌به‌چپ** برای تولید تنظیمات **Bucket Policy**، **CORS** و **Lifecycle** در [فضای ذخیره‌سازی ابری آروان](https://www.arvancloud.ir/fa/products/cloud-storage) (رابط S3).
@@ -20,7 +12,7 @@
 
 **مخزن:** [github.com/RaminNietzsche/s3_policy_gen](https://github.com/RaminNietzsche/s3_policy_gen)
 
-**مستندات با فونت وزیرمتن (RTL):** پس از `make serve` → [`docs/index.html`](docs/index.html)
+**مستندات (RTL + وزیرمتن):** `make docs` — یا پس از فعال‌سازی GitHub Pages: `https://raminnietzsche.github.io/s3_policy_gen/`
 
 **استقرار استاتیک:** [`DEPLOY.md`](DEPLOY.md)
 

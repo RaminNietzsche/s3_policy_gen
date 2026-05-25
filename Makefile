@@ -10,7 +10,7 @@ VENV := $(ROOT)/.venv
 PY := $(VENV)/bin/python
 PORT ?= 8080
 
-.PHONY: help install serve dev deploy deploy-quick fix-mime fix-mime-quick assets
+.PHONY: help install serve dev deploy deploy-quick fix-mime fix-mime-quick assets docs docs-serve
 
 help:
 	@echo "Bucket policy generator"
@@ -20,6 +20,8 @@ help:
 	@echo "  make deploy        TUI wizard — upload to S3"
 	@echo "  make fix-mime      TUI wizard — fix Content-Type"
 	@echo "  make assets        download fonts and aws4fetch"
+	@echo "  make docs          build static docs → docs/_site"
+	@echo "  make docs-serve    serve built docs on :8081"
 	@echo ""
 	@echo "  make deploy-quick  non-interactive (needs S3_* env or .deploy.env + secret in env)"
 	@echo ""
@@ -52,3 +54,11 @@ deploy-quick: $(VENV)/bin/python
 fix-mime-quick: $(VENV)/bin/python
 	@set -a; [ -f "$(ROOT)/.deploy.env" ] && . "$(ROOT)/.deploy.env"; set +a; \
 	"$(PY)" -m deploy fix-mime
+
+docs: $(VENV)/bin/python
+	"$(VENV)/bin/pip" install -q -r requirements-docs.txt
+	"$(PY)" docs/build.py
+
+docs-serve: docs
+	@echo "http://localhost:8081"
+	@"$(PY)" -m http.server 8081 --directory "$(ROOT)/docs/_site"
