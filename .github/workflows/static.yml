@@ -35,7 +35,9 @@ jobs:
           test -f assets/fonts/jetbrains-mono/jetbrains-mono-400.woff2
 
       - name: Build documentation site
-        run: python docs/build.py
+        run: |
+          test -f docs/content/guide.md
+          python docs/build.py
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

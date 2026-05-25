@@ -1,0 +1,11 @@
+# دارایی‌های شخص ثالث
+
+| مؤلفه | مسیر | مجوز |
+|--------|------|------|
+| [Vazirmatn](https://github.com/rastikerdar/vazirmatn) | `assets/fonts/vazirmatn/` | [SIL OFL 1.1](https://scripts.sil.org/OFL) |
+| [JetBrains Mono](https://github.com/JetBrains/JetBrainsMono) | `assets/fonts/jetbrains-mono/` | [SIL OFL 1.1](https://scripts.sil.org/OFL) |
+| [aws4fetch](https://github.com/mhart/aws4fetch) | `js/vendor/aws4fetch.mjs` | MIT |
+
+دریافت مجدد: `make assets`
+
+مجوز پروژه: [MIT](https://github.com/RaminNietzsche/s3_policy_gen/blob/main/LICENSE)

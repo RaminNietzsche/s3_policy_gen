@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 280" fill="none" aria-hidden="true">
+  <defs>
+    <linearGradient id="g1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00baba" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#0b3a42" stop-opacity="0.08"/>
+    </linearGradient>
+    <linearGradient id="g2" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00baba"/>
+      <stop offset="100%" stop-color="#009a9a"/>
+    </linearGradient>
+  </defs>
+  <rect width="400" height="280" rx="24" fill="url(#g1)"/>
+  <rect x="48" y="56" width="200" height="140" rx="12" fill="#fff" fill-opacity="0.92" stroke="#00baba" stroke-width="2"/>
+  <rect x="68" y="78" width="120" height="10" rx="4" fill="#00baba" fill-opacity="0.5"/>
+  <rect x="68" y="98" width="90" height="8" rx="3" fill="#009a9a" fill-opacity="0.35"/>
+  <rect x="68" y="114" width="100" height="8" rx="3" fill="#009a9a" fill-opacity="0.35"/>
+  <rect x="68" y="130" width="70" height="8" rx="3" fill="#009a9a" fill-opacity="0.35"/>
+  <circle cx="300" cy="88" r="36" fill="url(#g2)" fill-opacity="0.2"/>
+  <path d="M284 88h32M300 72v32" stroke="#00baba" stroke-width="3" stroke-linecap="round"/>
+  <rect x="228" y="168" width="120" height="56" rx="10" fill="#0b3a42" fill-opacity="0.12"/>
+  <text x="288" y="202" text-anchor="middle" fill="#0b3a42" font-family="system-ui,sans-serif" font-size="14" font-weight="600">Policy · CORS · LC</text>
+</svg>
