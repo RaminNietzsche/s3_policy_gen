@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>سازنده Bucket Policy، CORS و Lifecycle | ابر آروان</title>
+  <link rel="icon" href="assets/favicon.svg" type="image/svg+xml" id="favicon-link" />
+  <style id="critical-css">
+    html { font-size: 15px; color-scheme: light dark; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: system-ui, -apple-system, 'Segoe UI', Tahoma, sans-serif;
+      background: #f0f4f6;
+      color: #152a32;
+      line-height: 1.65;
+    }
+    .deploy-fallback-banner {
+      margin: 0;
+      padding: 0.85rem 1rem;
+      background: #fff3cd;
+      color: #664d03;
+      border-bottom: 1px solid #ffc107;
+      font-size: 0.9rem;
+    }
+    html.assets-missing body { background: #fff; }
+  </style>
+  <script>
+    (function () {
+      var path = location.pathname || '/';
+      var base = '/';
+      if (path.endsWith('/')) {
+        base = path.length === 1 ? '/' : path;
+      } else if (/\.[a-z0-9]+$/i.test(path)) {
+        base = path.slice(0, path.lastIndexOf('/') + 1) || '/';
+      } else if (path !== '/') {
+        base = path + '/';
+      }
+      window.__APP_BASE__ = base;
+      window.__assetUrl = function (relative) {
+        var r = relative.replace(/^\.\//, '');
+        return base === '/' ? r : base + r;
+      };
+      window.__resolveAsset = function (relative) {
+        return new URL(window.__assetUrl(relative), location.href).href;
+      };
+      var favicon = document.getElementById('favicon-link');
+      if (favicon) favicon.href = window.__resolveAsset('assets/favicon.svg');
+
+      function showAssetsMissing() {
+        document.documentElement.classList.add('assets-missing');
+        var b = document.getElementById('assets-missing-banner');
+        if (b) b.hidden = false;
+      }
+      window.__showAssetsMissing = showAssetsMissing;
+
+      /** بارگذاری CSS با fetch — وقتی آروان Content-Type را text/plain می‌گذارد، &lt;link&gt; کار نمی‌کند */
+      function loadAppStyles() {
+        var cssUrl = window.__resolveAsset('css/styles.css');
+        fetch(cssUrl)
+          .then(function (res) {
+            if (!res.ok) throw new Error('CSS HTTP ' + res.status);
+            return res.text();
+          })
+          .then(function (text) {
+            var assetsPrefix = base === '/' ? 'assets/' : base + 'assets/';
+            text = text.replace(/\.\.\/assets\//g, assetsPrefix);
+            var el = document.createElement('style');
+            el.id = 'main-styles-injected';
+            el.textContent = text;
+            document.head.appendChild(el);
+          })
+          .catch(function (err) {
+            console.error('CSS load failed:', err);
+            showAssetsMissing();
+          });
+      }
+
+      loadAppStyles();
+    })();
+  </script>
+  <script>
+    (function () {
+      var saved = localStorage.getItem('arvan_policy_theme');
+      var dark = saved === 'dark' || (saved !== 'light' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+      if (dark) document.documentElement.setAttribute('data-theme', 'dark');
+    })();
+  </script>
+</head>
+<body>
+  <div id="assets-missing-banner" class="deploy-fallback-banner" hidden>
+    <strong>فایل‌های css یا js بارگذاری نشدند.</strong>
+    کل پوشهٔ پروژه را با همان ساختار آپلود کنید: <code dir="ltr">index.html</code>،
+    <code dir="ltr">css/</code>، <code dir="ltr">assets/fonts/</code>، <code dir="ltr">js/*.js</code>.
+    فایل‌های <code dir="ltr">.css</code> باید <code dir="ltr">text/css</code> باشند (آپلود دستی در پنل آروان اغلب
+    <code dir="ltr">text/plain</code> می‌گذارد). ترجیحاً: <code dir="ltr">make deploy</code>
+  </div>
+  <div class="app">
+    <header class="hero">
+      <div class="hero-top">
+        <button type="button" id="btn-theme" class="btn-theme" aria-label="تغییر پوسته" title="پوستهٔ تیره / روشن">
+          <span class="theme-icon theme-icon-moon" aria-hidden="true">◐</span>
+          <span class="theme-icon theme-icon-sun" aria-hidden="true">◯</span>
+          <span class="theme-label">پوسته</span>
+        </button>
+      </div>
+      <div class="hero-badge">ابر آروان · ذخیره‌سازی ابری</div>
+      <h1>سازنده Bucket Policy، CORS و Lifecycle</h1>
+      <p class="hero-lead">
+        برای <strong>فضای ذخیره‌سازی ابری آروان</strong> (API سازگار با S3)؛ ساده و امن مطابق با قابلیت‌های واقعی سرویس
+      </p>
+    </header>
+
+    <details class="card connect-card" id="connect-panel">
+      <summary class="connect-summary">
+        <span class="connect-title">اتصال اختیاری به فضای ذخیره‌سازی</span>
+        <span id="connect-status" class="connect-status">قطع</span>
+      </summary>
+      <div class="connect-body">
+        <div id="connect-local-warning" role="alert" aria-live="polite">در حال بررسی آدرس…</div>
+        <p id="connect-server-status" class="pivest-local-status" hidden></p>
+        <p id="static-host-hint" class="card-hint static-host-hint" hidden>
+          صفحه از <strong>وب استاتیک / bucket</strong> باز شده — فقط ساخت تنظیمات کار می‌کند.
+          برای کلید و اعمال مستقیم: <code dir="ltr">python3 server.py</code> روی <code dir="ltr">localhost</code>.
+          راهنمای آپلود: <code dir="ltr">DEPLOY.md</code>
+        </p>
+        <p class="security-note">
+          <strong>امنیت:</strong> کلیدها فقط در حافظهٔ همین تب می‌مانند؛ Secret Key در localStorage ذخیره نمی‌شود.
+        </p>
+        <form class="connect-form" autocomplete="off" onsubmit="return false">
+        <fieldset id="connect-pivest-fields" class="connect-pivest-fields">
+        <legend class="visually-hidden">کلیدهای اتصال S3</legend>
+        <div class="field-grid connect-fields">
+          <label class="field field-cluster">
+            <span>کلاستر / Endpoint</span>
+            <select id="cluster-select" aria-label="انتخاب کلاستر">
+              <option value="iran-central1-simin">iran central1 — سیمین (s3.ir-thr-at1.arvanstorage.ir)</option>
+              <option value="iran-northwest1-shahriar">iran northwest1 — شهریار (s3.ir-tbz-sh1.arvanstorage.ir)</option>
+              <option value="iran-central1-hot">iran central1 — کلاستر هات — SSD (hot.ir-central1.arvanstorage.ir)</option>
+            </select>
+            <code id="cluster-endpoint-hint" class="endpoint-hint" dir="ltr">https://s3.ir-thr-at1.arvanstorage.ir</code>
+          </label>
+          <label class="field">
+            <span>Access Key</span>
+            <input id="access-key" type="text" dir="ltr" autocomplete="off" spellcheck="false" placeholder="Access Key ID" />
+          </label>
+          <label class="field">
+            <span>Secret Key</span>
+            <div class="secret-wrap">
+              <input id="secret-key" type="password" dir="ltr" autocomplete="off" spellcheck="false" placeholder="Secret Access Key" />
+              <button type="button" id="btn-toggle-secret" class="btn-icon" title="نمایش / پنهان">👁</button>
+            </div>
+          </label>
+        </div>
+        </fieldset>
+        </form>
+        <label class="field-checkbox">
+          <input type="checkbox" id="remember-access-key" />
+          <span>فقط Access Key و کلاستر را تا بستن تب به‌خاطر بسپار (بدون Secret)</span>
+        </label>
+        <div class="connect-actions">
+          <button type="button" id="btn-connect" class="btn-primary">اتصال و دریافت bucketها</button>
+          <button type="button" id="btn-disconnect" class="btn-secondary" hidden>قطع اتصال و پاک‌کردن کلیدها</button>
+          <button type="button" id="btn-refresh-buckets" class="btn-secondary" hidden>به‌روزرسانی فهرست</button>
+        </div>
+        <p id="connect-message" class="connect-message" hidden></p>
+      </div>
+    </details>
+
+    <div class="card bucket-global-card">
+      <label class="field field-bucket-global">
+        <span>Bucket</span>
+        <div class="bucket-picker">
+          <select id="app-bucket-select" class="bucket-select" hidden dir="ltr" aria-label="انتخاب bucket از فهرست">
+            <option value="">— انتخاب bucket —</option>
+          </select>
+          <input
+            id="app-bucket"
+            type="text"
+            placeholder="نام bucket"
+            autocomplete="off"
+            spellcheck="false"
+            dir="ltr"
+          />
+        </div>
+      </label>
+      <p class="card-hint bucket-global-hint">این bucket برای Policy، CORS و Lifecycle مشترک است.</p>
+    </div>
+
+    <nav class="tabs" role="tablist">
+      <button type="button" class="tab active" data-panel="policy" role="tab">Bucket Policy</button>
+      <button type="button" class="tab" data-panel="cors" role="tab">CORS</button>
+      <button type="button" class="tab" data-panel="lifecycle" role="tab">Lifecycle</button>
+    </nav>
+
+    <main class="layout">
+      <section class="workspace">
+        <div id="panel-policy" class="panel active">
+          <div class="card">
+            <h2>۱. مالک bucket</h2>
+            <p class="card-hint">
+              <strong>Account ID</strong> شناسهٔ مالک bucket است. به‌صورت خودکار یک قانون
+              <strong>دسترسی کامل</strong> برای همین حساب روی bucket و همهٔ فایل‌ها ساخته می‌شود.
+            </p>
+            <label class="field">
+              <span>Account ID</span>
+              <input id="account-id" type="text" dir="ltr" placeholder="شناسهٔ حساب مالک" autocomplete="off" spellcheck="false" />
+            </label>
+          </div>
+
+          <div class="card">
+            <h2>الگوهای آماده</h2>
+            <div id="template-list" class="template-list"></div>
+          </div>
+
+          <div class="card">
+            <h2>۲. افزودن قانون</h2>
+            <div class="field-grid field-grid-3">
+              <label class="field">
+                <span>نوع دسترسی</span>
+                <select id="stmt-effect">
+                  <option value="Allow">مجاز (Allow)</option>
+                  <option value="Deny">مسدود (Deny)</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>برای چه کسی</span>
+                <select id="principal-type">
+                  <option value="user">یک کاربر مشخص (ARN)</option>
+                  <option value="anonymous">همه — بدون ورود (*)</option>
+                  <option value="any-authenticated">هر کسی که کلید S3 دارد</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>روی چه بخشی</span>
+                <select id="resource-scope">
+                  <option value="OBJECTS">فقط فایل‌ها</option>
+                  <option value="BUCKET">فقط خود bucket</option>
+                  <option value="BOTH">bucket و همهٔ فایل‌ها</option>
+                </select>
+              </label>
+            </div>
+
+            <div id="principal-user-fields" class="principal-arn-fields" hidden>
+              <label class="field">
+                <span>ARN کاربر (یک یا چند)</span>
+                <textarea
+                  id="stmt-principal-arns"
+                  rows="4"
+                  dir="ltr"
+                  spellcheck="false"
+                  placeholder="arn:aws:iam:::user/10e4cf9d-d139-4165-893f-c484f3e9a2d0&#10;arn:aws:iam:::user/another-id"
+                ></textarea>
+              </label>
+              <p class="card-hint">هر خط (یا با ویرگول) یک ARN — فرمت: <code dir="ltr">arn:aws:iam:::user/…</code></p>
+              <button type="button" id="btn-fill-arn-from-account" class="btn-text">پر کردن از Account ID بالا</button>
+            </div>
+
+            <label class="field">
+              <span>نام قانون (اختیاری)</span>
+              <input id="stmt-sid" type="text" dir="ltr" placeholder="AllowReadOnly" />
+            </label>
+
+            <div class="actions-block">
+              <span class="label">چه کارهایی مجاز است</span>
+              <div class="preset-row">
+                <button type="button" class="btn-preset" data-action-preset="readOnly">فقط خواندن</button>
+                <button type="button" class="btn-preset" data-action-preset="readWrite">خواندن / نوشتن</button>
+                <button type="button" class="btn-preset" data-action-preset="uploadOnly">فقط آپلود</button>
+                <button type="button" class="btn-preset" data-action-preset="listOnly">فقط لیست</button>
+                <button type="button" class="btn-preset btn-preset-muted" id="btn-actions-clear">پاک‌کردن</button>
+              </div>
+              <div id="stmt-actions-list" class="actions-checklist" role="group" aria-label="انتخاب Action"></div>
+              <p id="actions-selected-count" class="actions-count">۰ مورد انتخاب شده</p>
+            </div>
+
+            <div class="conditions-block">
+              <div class="conditions-head">
+                <span>شرط اضافه (اختیاری)</span>
+                <button type="button" id="btn-add-condition" class="btn-secondary">+ شرط</button>
+              </div>
+              <div id="conditions-list"></div>
+            </div>
+
+            <button type="button" id="btn-add-statement" class="btn-primary">افزودن قانون</button>
+          </div>
+
+          <div class="card">
+            <div class="card-head-row">
+              <h2>قوانین اضافه‌شده</h2>
+              <button type="button" id="btn-clear-statements" class="btn-text">پاک‌کردن همه</button>
+            </div>
+            <div id="statements-list"></div>
+          </div>
+        </div>
+
+        <div id="panel-cors" class="panel">
+          <div class="card cors-order-card">
+            <h2>ترتیب قوانین CORS</h2>
+            <div class="info-box cors-order-info">
+              <p>قوانین از <strong>بالا به پایین</strong> بررسی می‌شوند. <strong>اولین قانونی</strong> که با سایت و نوع درخواست (مثلاً GET) جور باشد اجرا می‌شود و بقیه نادیده گرفته می‌شوند.</p>
+              <p>ترتیب لیست پایین صفحه = ترتیب در فایل XML (قانون قدیمی‌تر بالاتر است).</p>
+              <p><strong>پیشنهاد ترتیب:</strong></p>
+              <ul class="guide-list">
+                <li>اول سایت‌های مشخص (مثلاً <code dir="ltr">https://panel.example.com</code>)</li>
+                <li>بعد سایت‌های عمومی‌تر</li>
+                <li>در آخر در صورت نیاز <code dir="ltr">*</code> برای همه</li>
+              </ul>
+              <p class="card-hint">اگر <code dir="ltr">*</code> را بالا بگذارید، قوانین دقیق‌تر پایین معمولاً اجرا نمی‌شوند.</p>
+            </div>
+            <details class="cors-flow-details">
+              <summary>درخواست OPTIONS در مرورگر (preflight)</summary>
+              <ul class="guide-list">
+                <li>وقتی سایت شما از دامنهٔ دیگری به bucket وصل می‌شود، مرورگر ممکن است قبل از GET/PUT یک درخواست <code dir="ltr">OPTIONS</code> بفرستد.</li>
+                <li>متدهای مجاز باید شامل همان متدی باشد که بعداً استفاده می‌کنید (مثلاً PUT برای آپلود).</li>
+                <li>«مدت کش preflight» یعنی چند ثانیه مرورگر همان جواب را تکرار نکند.</li>
+                <li>«هدرهای قابل خواندن در پاسخ» برای دیدن مقادیری مثل <code dir="ltr">ETag</code> در JavaScript است.</li>
+              </ul>
+            </details>
+            <p class="card-hint">CORS فقط به مرورگر می‌گوید چه سایتی اجازه درخواست دارد؛ هنوز <strong>Bucket Policy</strong> و کلید S3 لازم است.</p>
+          </div>
+
+          <div class="card">
+            <h2>الگوهای CORS</h2>
+            <div id="cors-template-list" class="template-list">
+              <button type="button" class="template-chip" data-cors-template-id="web-app">وب‌اپ (آپلود از مرورگر)</button>
+              <button type="button" class="template-chip" data-cors-template-id="read-only-cdn">فقط خواندن عمومی</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2>افزودن قانون CORS</h2>
+            <p class="card-hint">هر خط یک آدرس سایت — مثلاً <code dir="ltr">https://panel.example.com</code> یا <code dir="ltr">*</code> برای همه</p>
+            <label class="field">
+              <span>سایت‌های مجاز (Origin)</span>
+              <textarea id="cors-origins" rows="3" dir="ltr" placeholder="*&#10;https://example.com" spellcheck="false"></textarea>
+            </label>
+            <div class="actions-block">
+              <span class="label">متدهای مجاز (مثلاً GET، PUT)</span>
+              <div id="cors-methods-list" class="action-checkboxes cors-methods"></div>
+            </div>
+            <div class="field-grid">
+              <label class="field">
+                <span>هدرهای مجاز در درخواست</span>
+                <input id="cors-allowed-headers" type="text" dir="ltr" value="*" spellcheck="false" />
+              </label>
+              <label class="field">
+                <span>هدرهای قابل خواندن در پاسخ (اختیاری)</span>
+                <input id="cors-expose-headers" type="text" dir="ltr" placeholder="ETag" spellcheck="false" />
+              </label>
+            </div>
+            <label class="field field-narrow">
+              <span>مدت کش preflight — ثانیه (اختیاری)</span>
+              <input id="cors-max-age" type="number" min="0" dir="ltr" placeholder="3000" />
+            </label>
+            <button type="button" id="btn-add-cors-rule" class="btn-primary">افزودن قانون</button>
+          </div>
+
+          <div class="card">
+            <div class="card-head-row">
+              <h2>قوانین CORS</h2>
+              <button type="button" id="btn-clear-cors" class="btn-text">پاک‌کردن همه</button>
+            </div>
+            <p class="card-hint cors-rules-order-hint">ترتیب مهم است — برای تغییر ترتیب، قوانین را پاک کنید و دوباره از بالا به پایین اضافه کنید.</p>
+            <div id="cors-rules-list"></div>
+          </div>
+        </div>
+
+        <div id="panel-lifecycle" class="panel">
+          <div class="card">
+            <h2>الگوهای Lifecycle</h2>
+            <div id="lifecycle-template-list" class="template-list">
+              <button type="button" class="template-chip" data-lifecycle-template-id="expire-30d">حذف پس از ۳۰ روز</button>
+              <button type="button" class="template-chip" data-lifecycle-template-id="abort-multipart-7d">پاک‌سازی multipart ناقص</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <h2>افزودن قانون Lifecycle</h2>
+            <div class="field-grid field-grid-3">
+              <label class="field">
+                <span>شناسهٔ قانون</span>
+                <input id="lc-id" type="text" dir="ltr" placeholder="expire-logs" spellcheck="false" />
+              </label>
+              <label class="field">
+                <span>وضعیت</span>
+                <select id="lc-status">
+                  <option value="Enabled">فعال</option>
+                  <option value="Disabled">غیرفعال</option>
+                </select>
+              </label>
+              <label class="field">
+                <span>مسیر پوشه (اختیاری)</span>
+                <input id="lc-prefix" type="text" dir="ltr" placeholder="logs/" spellcheck="false" />
+              </label>
+            </div>
+            <div class="field-grid field-grid-3">
+              <label class="field">
+                <span>حذف خودکار بعد از (روز)</span>
+                <input id="lc-expiration-days" type="number" min="1" dir="ltr" placeholder="30" />
+              </label>
+              <label class="field field-disabled" title="در فضای ذخیره‌سازی آروان پشتیبانی نمی‌شود">
+                <span>انتقال به کلاس دیگر بعد از (روز)</span>
+                <input id="lc-transition-days" type="number" min="1" dir="ltr" placeholder="—" disabled aria-disabled="true" />
+              </label>
+              <label class="field field-disabled" title="در فضای ذخیره‌سازی آروان پشتیبانی نمی‌شود">
+                <span>کلاس ذخیره‌سازی مقصد</span>
+                <select id="lc-storage-class" disabled aria-disabled="true">
+                  <option value="">—</option>
+                </select>
+              </label>
+            </div>
+            <label class="field field-narrow">
+              <span>پاک‌سازی آپلود ناقص بعد از (روز)</span>
+              <input id="lc-abort-days" type="number" min="1" dir="ltr" placeholder="7" />
+            </label>
+            <p class="card-hint">حداقل یکی از «حذف بعد از N روز» یا «پاک‌سازی آپلود ناقص» را پر کنید. انتقال به کلاس دیگر در آروان از این ابزار فعال نیست.</p>
+            <button type="button" id="btn-add-lifecycle-rule" class="btn-primary">افزودن قانون</button>
+          </div>
+
+          <div class="card">
+            <div class="card-head-row">
+              <h2>قوانین Lifecycle</h2>
+              <button type="button" id="btn-clear-lifecycle" class="btn-text">پاک‌کردن همه</button>
+            </div>
+            <div id="lifecycle-rules-list"></div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="output-pane">
+        <div class="output-card">
+          <div class="output-head">
+            <h2>خروجی</h2>
+            <div class="output-actions">
+              <button type="button" id="btn-copy" class="btn-secondary">کپی</button>
+              <button type="button" id="btn-download" class="btn-secondary">دانلود</button>
+            </div>
+          </div>
+          <p id="output-hint" class="output-hint" hidden></p>
+          <textarea id="output" readonly spellcheck="false" dir="ltr"></textarea>
+
+          <div class="apply-clients-block">
+            <span class="label">اعمال روی bucket</span>
+            <p class="card-hint apply-clients-hint">کلاینت را انتخاب کنید؛ راهنمای نصب و اجرا در پنجره باز می‌شود.</p>
+            <div id="apply-clients-list" class="apply-clients-list"></div>
+          </div>
+          <div class="bucket-delete-block" hidden>
+            <span class="label">حذف از bucket</span>
+            <p class="card-hint">تنظیم فعلی همان تب (Policy / CORS / Lifecycle) را از آروان حذف می‌کند — فقط localhost + اتصال.</p>
+            <button type="button" id="btn-pivest-delete" class="btn-secondary btn-danger" disabled>
+              حذف از آروان
+            </button>
+          </div>
+        </div>
+
+        <details class="limitations">
+          <summary>نکات فضای ذخیره‌سازی ابری</summary>
+          <ul>
+            <li>سیاست IAM کل حساب (نقش و گروه) — پشتیبانی محدود</li>
+            <li>جایگزینی متغیر در policy — پشتیبانی نمی‌شود</li>
+            <li>CORS و Lifecycle فقط روی خود bucket تنظیم می‌شوند</li>
+          </ul>
+          <a href="https://www.arvancloud.ir/fa/products/cloud-storage" target="_blank" rel="noopener">ذخیره‌سازی ابری آروان</a>
+        </details>
+      </aside>
+    </main>
+
+    <footer class="footer">
+      ابزار کمکی — پیش از اعمال در محیط واقعی، سیاست را آزمایش کنید. کلیدها را با دیگران به اشتراک نگذارید.
+    </footer>
+  </div>
+
+  <dialog id="client-guide-modal" class="policy-modal guide-modal" aria-labelledby="client-guide-title">
+    <div class="policy-modal-form guide-modal-inner">
+      <div class="policy-modal-head">
+        <h2 id="client-guide-title">راهنمای اعمال</h2>
+        <button type="button" class="btn-icon modal-close-btn" id="client-guide-close" aria-label="بستن">×</button>
+      </div>
+      <p id="client-guide-subtitle" class="card-hint policy-modal-desc"></p>
+      <div id="client-guide-body" class="guide-modal-body"></div>
+      <div class="policy-modal-actions guide-modal-actions">
+        <button type="button" class="btn-secondary" id="client-guide-dismiss">بستن</button>
+        <button type="button" class="btn-primary" id="btn-pivest-apply" hidden>
+          ادامه — تأیید و اعمال
+        </button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="pivest-confirm-modal" class="policy-modal guide-modal pivest-confirm-modal" aria-labelledby="pivest-confirm-title">
+    <div class="policy-modal-form guide-modal-inner">
+      <div class="policy-modal-head">
+        <h2 id="pivest-confirm-title">تأیید اعمال مستقیم روی آروان</h2>
+        <button type="button" class="btn-icon modal-close-btn" id="pivest-confirm-close" aria-label="بستن">×</button>
+      </div>
+      <p id="pivest-confirm-subtitle" class="card-hint policy-modal-desc"></p>
+      <div id="pivest-confirm-body" class="guide-modal-body"></div>
+      <label class="field-checkbox pivest-accept-row">
+        <input type="checkbox" id="pivest-accept-checkbox" />
+        <span id="pivest-accept-label">متن رفع مسئولیت را خواندم و مسئولیت اعمال را می‌پذیرم.</span>
+      </label>
+      <div class="policy-modal-actions guide-modal-actions">
+        <button type="button" class="btn-secondary" id="pivest-confirm-cancel">انصراف</button>
+        <button type="button" class="btn-primary" id="pivest-confirm-apply" disabled>اعمال روی آروان</button>
+      </div>
+    </div>
+  </dialog>
+
+  <dialog id="template-modal" class="policy-modal" aria-labelledby="template-modal-title">
+    <form method="dialog" id="template-modal-form" class="policy-modal-form">
+      <div class="policy-modal-head">
+        <h2 id="template-modal-title">الگوی آماده</h2>
+        <button type="button" class="btn-icon modal-close-btn" id="template-modal-close" aria-label="بستن">×</button>
+      </div>
+      <p id="template-modal-desc" class="card-hint policy-modal-desc"></p>
+      <div id="template-modal-fields" class="policy-modal-fields"></div>
+      <div class="policy-modal-actions">
+        <button type="button" class="btn-secondary" id="template-modal-cancel">انصراف</button>
+        <button type="submit" class="btn-primary" value="confirm">افزودن قانون</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script>
+    (function () {
+      var url = window.__resolveAsset
+        ? window.__resolveAsset('js/app.js')
+        : new URL('js/app.js', location.href).href;
+      var s = document.createElement('script');
+      s.type = 'module';
+      s.src = url;
+      s.onerror = function () {
+        console.error('App script failed to load:', url);
+        if (window.__showAssetsMissing) window.__showAssetsMissing();
+      };
+      document.head.appendChild(s);
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+name: گزارش باگ
+description: مشکل روی localhost یا deploy استاتیک
+title: "[bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        **Access Key یا Secret Key را paste نکنید.** در صورت نیاز نام bucket را مخفی کنید.
+
+  - type: dropdown
+    id: environment
+    attributes:
+      label: محیط
+      options:
+        - make serve (localhost:8080)
+        - وب‌سایت استاتیک S3 / آروان
+        - هر دو
+    validations:
+      required: true
+
+  - type: input
+    id: browser
+    attributes:
+      label: مرورگر / سیستم‌عامل
+      placeholder: "Firefox 125 / macOS 15"
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: مراحل بازتولید
+      placeholder: |
+        1. make serve
+        2. ...
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: رفتار مورد انتظار
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: رفتار واقعی
+    validations:
+      required: true
+
+  - type: textarea
+    id: console
+    attributes:
+      label: خطای Console (بدون کلید)
+      render: shell

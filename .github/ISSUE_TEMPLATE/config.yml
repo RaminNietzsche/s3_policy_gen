@@ -1,0 +1,6 @@
+blank_issues_enabled: true
+contact_links:
+  - name: راهنمای مشارکت (PRهای AI خوش‌آمدند)
+    url: https://github.com/RaminNietzsche/s3_policy_gen/blob/main/CONTRIBUTING.md
+  - name: امنیت
+    url: https://github.com/RaminNietzsche/s3_policy_gen/blob/main/SECURITY.md

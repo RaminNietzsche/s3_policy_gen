@@ -1,0 +1,33 @@
+name: درخواست قابلیت
+description: الگوی جدید، نوع قانون، بهبود deploy و ...
+title: "[feat]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: مشکل / use case
+      description: روی فضای ذخیره‌سازی آروان چه می‌خواهید انجام دهید؟
+    validations:
+      required: true
+
+  - type: textarea
+    id: proposal
+    attributes:
+      label: پیشنهاد
+    validations:
+      required: true
+
+  - type: dropdown
+    id: area
+    attributes:
+      label: حوزه
+      options:
+        - Bucket Policy
+        - CORS
+        - Lifecycle
+        - Deploy / Makefile
+        - مستندات
+        - سایر
+    validations:
+      required: true

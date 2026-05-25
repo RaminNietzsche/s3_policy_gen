@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+    branches: [main, master]
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install deploy dependencies
+        run: pip install -r requirements.txt
+
+      - name: Compile Python
+        run: |
+          python -m py_compile server.py
+          python -m compileall -q deploy
+
+      - name: Verify static assets exist
+        run: |
+          test -f index.html
+          test -f css/styles.css
+          test -f js/app.js
+          test -f js/vendor/aws4fetch.mjs
+          test -f assets/favicon.svg
+
+      - name: CLI help
+        run: python -m deploy --help
