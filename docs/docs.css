@@ -1,0 +1,159 @@
+/* مستندات فارسی — راست‌به‌چپ، فونت وزیرمتن (همان اپ) */
+
+@font-face {
+  font-family: 'Vazirmatn';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../assets/fonts/vazirmatn/vazirmatn-400.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Vazirmatn';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url('../assets/fonts/vazirmatn/vazirmatn-600.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'JetBrains Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('../assets/fonts/jetbrains-mono/jetbrains-mono-400.woff2') format('woff2');
+}
+
+:root {
+  --text: #152a32;
+  --muted: #4a6570;
+  --accent: #00baba;
+  --bg: #f0f4f6;
+  --card: #fff;
+}
+
+html {
+  font-size: 16px;
+  color-scheme: light dark;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: 'Vazirmatn', Tahoma, 'Segoe UI', sans-serif;
+  direction: rtl;
+  text-align: right;
+  line-height: 1.75;
+  color: var(--text);
+  background: var(--bg);
+}
+
+.docs-wrap {
+  max-width: 46rem;
+  margin: 0 auto;
+  padding: 2rem 1.25rem 3rem;
+}
+
+.docs-nav {
+  margin-bottom: 2rem;
+  padding: 1rem 1.25rem;
+  background: var(--card);
+  border-radius: 8px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.docs-nav ul {
+  margin: 0.5rem 0 0;
+  padding: 0 1.25rem 0 0;
+}
+
+.docs-nav a {
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.docs-nav a:hover {
+  text-decoration: underline;
+}
+
+h1, h2, h3 {
+  font-weight: 600;
+  color: var(--text);
+}
+
+h1 { font-size: 1.65rem; margin-top: 0; }
+
+h2 {
+  font-size: 1.2rem;
+  margin-top: 2rem;
+  padding-bottom: 0.35rem;
+  border-bottom: 2px solid var(--accent);
+}
+
+p, li { color: var(--text); }
+
+.lead { font-size: 1.05rem; color: var(--muted); }
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+  font-size: 0.95rem;
+}
+
+th, td {
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  padding: 0.5rem 0.75rem;
+  text-align: right;
+}
+
+th { background: rgba(0, 186, 186, 0.12); }
+
+pre, code {
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  direction: ltr;
+  text-align: left;
+}
+
+pre {
+  background: #1e2a30;
+  color: #e8f0f2;
+  padding: 1rem;
+  border-radius: 6px;
+  overflow-x: auto;
+  font-size: 0.85rem;
+}
+
+:not(pre) > code {
+  background: rgba(0, 0, 0, 0.06);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+
+.badge-row {
+  direction: ltr;
+  text-align: left;
+  margin-bottom: 1.5rem;
+}
+
+.badge-row img { margin-left: 0.25rem; }
+
+.note {
+  padding: 0.85rem 1rem;
+  background: rgba(0, 186, 186, 0.08);
+  border-right: 4px solid var(--accent);
+  border-radius: 4px;
+  margin: 1rem 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --text: #e8f0f2;
+    --muted: #a8bcc4;
+    --bg: #0f1a1e;
+    --card: #152a32;
+  }
+  th { background: rgba(0, 186, 186, 0.2); }
+  :not(pre) > code { background: rgba(255, 255, 255, 0.08); }
+}

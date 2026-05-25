@@ -1,83 +1,90 @@
+<div dir="rtl" align="right">
+
 # s3_policy_gen
+
+</div>
+
+<div dir="ltr" align="left">
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-teal.svg)](LICENSE)
 [![Python](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/)
 [![Arvan Cloud](https://img.shields.io/badge/S3-Arvan%20Cloud-00baba.svg)](https://www.arvancloud.ir/fa/products/cloud-storage)
 
-**رابط وب فارسی، بدون build** برای ساخت تنظیمات **Bucket Policy**، **CORS** و **Lifecycle** روی [فضای ذخیره‌سازی ابری آروان](https://www.arvancloud.ir/fa/products/cloud-storage) (API سازگار با S3؛ در عمل Ceph).
+</div>
 
-نه webpack، نه `npm install` برای خود اپ. `index.html` را باز کنید، یا `make serve` — تمام.
+<div dir="rtl" align="right">
 
-**نسخهٔ استاتیک (مثال):** با [`DEPLOY.md`](DEPLOY.md) روی bucket خودتان — مثلاً `https://policygen.s3-website.ir-thr-at1.arvanstorage.ir/`
+ابزار وب **فارسی و راست‌به‌چپ** برای تولید تنظیمات **Bucket Policy**، **CORS** و **Lifecycle** در [فضای ذخیره‌سازی ابری آروان](https://www.arvancloud.ir/fa/products/cloud-storage) (رابط S3).
+
+بدون مرحلهٔ build برای خود برنامه؛ کافی است `index.html` را باز کنید یا `make serve` را اجرا کنید.
 
 **مخزن:** [github.com/RaminNietzsche/s3_policy_gen](https://github.com/RaminNietzsche/s3_policy_gen)
 
+**مستندات با فونت وزیرمتن (RTL):** پس از `make serve` → [`docs/index.html`](docs/index.html)
+
+**استقرار استاتیک:** [`DEPLOY.md`](DEPLOY.md)
+
 ---
 
-## 🤖 با هوش مصنوعی ساخته شده (جدی می‌گوییم)
+## توسعه با کمک هوش مصنوعی
 
-این پروژه **با کمک زیاد دستیارهای کدنویسی AI** توسعه داده شده (pair-programming، refactor، deploy، مستندات). انسان مسیر را تعیین می‌کند؛ مدل‌ها تایپ می‌کنند.
+این پروژه با مشارکت گستردهٔ دستیارهای کدنویسی مبتنی بر هوش مصنوعی توسعه یافته است.
 
-**از PRهایی که با AI کمک شده‌اند شدیداً استقبال می‌کنیم** — Copilot، Cursor، Claude، ChatGPT، یا LLM روی Raspberry Pi در homelab. اگر patch منسجم، تست‌شده و بدون leak کردن secret باشد، مهم نیست کدام GPU خواب دیده. در PR بگویید از چه ابزاری استفاده کردید؛ دوست داریم بدانیم چه چیزی جواب می‌دهد.
-
-جزئیات: [`CONTRIBUTING.md`](CONTRIBUTING.md) و [`AGENTS.md`](AGENTS.md).
+**ارسال Pull Requestهای کمک‌شده با AI** صریحاً پشتیبانی می‌شود، به‌شرط رعایت امنیت، تست و شفافیت در توضیح تغییرات. راهنما: [`CONTRIBUTING.md`](CONTRIBUTING.md) و [`AGENTS.md`](AGENTS.md).
 
 ---
 
 ## امکانات
 
-| بخش | چه می‌دهد |
-|-----|----------|
-| **Bucket Policy** | سازندهٔ بصری قانون، الگوها، قانون مالک، شرط‌ها مطابق قابلیت واقعی آروان |
-| **CORS** | سازندهٔ XML + راهنمای ترتیب (چون `*` بالای لیست هنوز روز را خراب می‌کند) |
-| **Lifecycle** | قوانین با `<Filter>` اجباری برای Ceph؛ انتقال کلاس جایی که پلتفرم نمی‌دهد غیرفعال |
-| **بارگذاری از bucket** | پس از اتصال لوکال، policy / CORS / lifecycle موجود را در UI می‌کشد |
-| **اعمال / حذف** | مستقیم روی آروان **فقط** با `server.py` روی localhost (کلید به استاتیک نمی‌رود) |
-| **Deploy** | `make deploy` — ویزارد TUI، object عمومی، CORS باکت، ساخت باکت در صورت نبود |
+| بخش | شرح |
+|-----|------|
+| **Bucket Policy** | سازندهٔ قانون، الگوهای آماده، قانون مالک، شرط‌ها مطابق قابلیت‌های سرویس آروان |
+| **CORS** | تولید XML و راهنمای ترتیب قوانین |
+| **Lifecycle** | قوانین با عنصر `<Filter>`؛ انتقال بین کلاس‌های ذخیره‌سازی در UI غیرفعال است |
+| **بارگذاری از bucket** | پس از اتصال در محیط لوکال، تنظیمات موجود قابل واکشی است |
+| **اعمال و حذف** | اعمال مستقیم روی آروان **فقط** از طریق `server.py` روی localhost |
+| **Deploy** | `make deploy` — ویزارد، دسترسی عمومی اشیاء، CORS باکت، ایجاد باکت در صورت نیاز |
 
-زبان UI: **فارسی (RTL)**. کامنت کد: ترکیب فارسی و انگلیسی. Issue/PR: فارسی یا انگلیسی هر دو خوب است.
+زبان رابط کاربری: **فارسی (RTL)**. Issue و Pull Request: فارسی یا انگلیسی.
 
 ---
 
 ## شروع سریع
 
-### مرورگر (لوکال، قابلیت کامل)
+### محیط لوکال (قابلیت کامل)
 
 ```bash
 git clone https://github.com/RaminNietzsche/s3_policy_gen.git
 cd s3_policy_gen
-make install    # venv + boto3 + questionary (فقط deploy)
-make serve      # http://localhost:8080
+make install
+make serve
 ```
 
-اختیاری: Access Key / Secret در UI → فهرست bucket → بارگذاری یا اعمال تنظیمات.  
-Secret فقط در **حافظهٔ همان تب** می‌ماند؛ [`SECURITY.md`](SECURITY.md).
+اتصال اختیاری با Access Key و Secret در UI؛ کلیدها فقط در حافظهٔ همان تب نگه‌داری می‌شوند. [`SECURITY.md`](SECURITY.md)
 
-### میزبانی استاتیک (وب‌سایت S3)
+### میزبانی استاتیک
 
 ```bash
 make assets
-cp .deploy.env.example .deploy.env   # کلیدها را پر کنید
-make deploy-quick    # یا: make deploy (ویزارد)
+cp .deploy.env.example .deploy.env
+make deploy-quick
 ```
 
-جزئیات: [`DEPLOY.md`](DEPLOY.md).
+### بدون Python
 
-### فقط سازنده (بدون Python)
-
-`index.html` را از سرور استاتیک یا S3 باز کنید. **ساخت و کپی** JSON/XML کار می‌کند؛ اعمال زنده و کلیدها نیاز به `make serve` دارند.
+فقط ساخت و کپی خروجی JSON/XML؛ اعمال زنده نیاز به `make serve` دارد.
 
 ---
 
-## معماری (۳۰ ثانیه)
+## معماری
 
 ```
-index.html + css/styles.css + js/*.js   ← اپ استاتیک (ES modules)
-server.py                               ← فایل استاتیک + POST /s3-proxy (فرار از CORS)
-deploy/                                 ← آپلود boto3، policy باکت، CORS، ویزارد
+index.html + css/styles.css + js/*.js   ← برنامهٔ استاتیک (ماژول ES)
+server.py                               ← فایل‌های استاتیک + POST /s3-proxy
+deploy/                                 ← آپلود و پیکربندی باکت (Python)
 ```
 
-سایت استاتیک CSS را با `fetch()` می‌گیرد تا `Content-Type` اشتباه آروان (`text/plain` به‌جای `text/css`) layout را نکشد. این را رفته‌ایم.
+بارگذاری CSS با `fetch()` برای تحمل `Content-Type` نادرست پس از آپلود دستی در پنل.
 
 ---
 
@@ -87,43 +94,44 @@ deploy/                                 ← آپلود boto3، policy باکت،
 ├── index.html
 ├── server.py
 ├── css/styles.css
-├── js/                    # ماژول‌های اپ + vendor/aws4fetch.mjs
-├── assets/fonts/          # Vazirmatn، JetBrains Mono (OFL)
-├── deploy/                # پکیج پایتون: python3 -m deploy
+├── js/
+├── assets/fonts/          # وزیرمتن، JetBrains Mono
+├── docs/                  # مستندات HTML (RTL + فونت)
+├── deploy/
 ├── Makefile
-├── requirements.txt
-├── DEPLOY.md
-└── THIRD_PARTY.md
+└── DEPLOY.md
 ```
 
 ---
 
 ## دستورات Make
 
-| دستور | توضیح |
-|--------|--------|
-| `make serve` | سرور توسعه + پروکسی S3 |
-| `make deploy` | ویزارد تعاملی آپلود |
-| `make deploy-quick` | آپلود با `.deploy.env` |
-| `make fix-mime` | اصلاح Content-Type روی css/html |
-| `make assets` | دانلود فونت و vendor JS |
+| دستور | شرح |
+|--------|------|
+| `make serve` | سرور توسعه و پروکسی S3 |
+| `make deploy` | ویزارد استقرار |
+| `make deploy-quick` | استقرار با `.deploy.env` |
+| `make fix-mime` | اصلاح Content-Type |
+| `make assets` | دریافت فونت‌ها و وابستگی JS |
 
 ---
 
 ## امنیت
 
-- `.deploy.env` و کلید واقعی را commit نکنید (در gitignore است).
-- کلید production را روی **سایت استاتیک عمومی** وارد نکنید — فقط **localhost** با `server.py`.
-- قبل از اعمال، خروجی policy را بخوانید. این ابزار دریل است، نه مدل دسترسی.
+- فایل `.deploy.env` و کلیدها را commit نکنید.
+- کلیدهای تولید را در سایت استاتیک عمومی وارد نکنید.
+- پیش از اعمال، خروجی سیاست را بازبینی کنید.
 
 ---
 
 ## مشارکت
 
-گزارش باگ، الگو، مستندات و **patchهای AI** خوش‌آمدند. [`CONTRIBUTING.md`](CONTRIBUTING.md).
+[`CONTRIBUTING.md`](CONTRIBUTING.md)
 
 ---
 
 ## مجوز
 
 [MIT](LICENSE) — فونت‌ها و aws4fetch: [`THIRD_PARTY.md`](THIRD_PARTY.md).
+
+</div>

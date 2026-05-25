@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>مستندات s3_policy_gen</title>
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="docs.css" />
+</head>
+<body>
+  <div class="docs-wrap">
+    <nav class="docs-nav" aria-label="فهرست مستندات">
+      <strong>مستندات پروژه</strong>
+      <ul>
+        <li><a href="index.html">راهنمای اصلی</a></li>
+        <li><a href="../DEPLOY.md">استقرار (Markdown)</a></li>
+        <li><a href="../CONTRIBUTING.md">مشارکت (Markdown)</a></li>
+        <li><a href="../SECURITY.md">امنیت (Markdown)</a></li>
+        <li><a href="../README.md">README در GitHub</a></li>
+      </ul>
+      <p class="lead" style="margin: 0.75rem 0 0; font-size: 0.9rem;">
+        برای نمایش صحیح فونت‌ها این صفحه را پس از <code>make serve</code> باز کنید:
+        <code dir="ltr">http://localhost:8080/docs/index.html</code>
+      </p>
+    </nav>
+
+    <div class="badge-row">
+      <a href="https://github.com/RaminNietzsche/s3_policy_gen"><img src="https://img.shields.io/badge/License-MIT-teal.svg" alt="MIT" /></a>
+      <img src="https://img.shields.io/badge/python-3.10+-blue.svg" alt="Python" />
+      <img src="https://img.shields.io/badge/S3-Arvan%20Cloud-00baba.svg" alt="Arvan" />
+    </div>
+
+    <h1>سازنده Bucket Policy، CORS و Lifecycle</h1>
+    <p class="lead">
+      رابط وب فارسی (راست‌به‌چپ) برای تنظیم سیاست دسترسی، CORS و چرخهٔ عمر روی
+      <a href="https://www.arvancloud.ir/fa/products/cloud-storage">فضای ذخیره‌سازی ابری آروان</a>
+      (API سازگار با S3).
+    </p>
+
+    <p>
+      مخزن:
+      <a href="https://github.com/RaminNietzsche/s3_policy_gen" dir="ltr">github.com/RaminNietzsche/s3_policy_gen</a>
+    </p>
+
+    <h2>توسعه با کمک هوش مصنوعی</h2>
+    <p>
+      این پروژه با مشارکت دستیارهای کدنویسی مبتنی بر هوش مصنوعی توسعه یافته است.
+      ارسال Pull Requestهایی که با چنین ابزارهایی تهیه شده‌اند نیز مورد استقبال قرار می‌گیرد،
+      مشروط بر رعایت امنیت، تست و کیفیت کد. جزئیات در
+      <a href="../CONTRIBUTING.md">CONTRIBUTING.md</a>.
+    </p>
+
+    <h2>شروع سریع</h2>
+    <pre>git clone https://github.com/RaminNietzsche/s3_policy_gen.git
+cd s3_policy_gen
+make install
+make serve</pre>
+    <p>آدرس: <code dir="ltr">http://localhost:8080</code></p>
+
+    <h2>استقرار استاتیک</h2>
+    <pre>make assets
+cp .deploy.env.example .deploy.env
+make deploy</pre>
+    <p>راهنمای کامل: <a href="../DEPLOY.md">DEPLOY.md</a></p>
+
+    <div class="note">
+      فونت‌های این صفحه: <strong>وزیرمتن</strong> برای متن فارسی و
+      <strong>JetBrains Mono</strong> برای کد — همان فونت‌های رابط کاربری اپلیکیشن.
+    </div>
+  </div>
+</body>
+</html>

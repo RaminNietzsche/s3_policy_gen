@@ -1,37 +1,41 @@
-# یادداشت برای agentهای کدنویسی AI
+<div dir="rtl" align="right">
 
-این مخزن **AI-native** است: نگهدارندگان از دستیار استفاده می‌کنند؛ **PRهای AI خوش‌آمدند**.
+# راهنمای agentهای کدنویسی AI
 
-## این پروژه چیست
+مخزن با مشارکت AI توسعه یافته؛ Pull Requestهای AI پذیرفته می‌شوند.
 
-- اپ وب **فارسی RTL** استاتیک برای فضای ذخیره‌سازی سازگار با S3 آروان
-- ماژول‌ها در `js/` (بدون bundler)
-- `server.py` — سرور فایل + `/s3-proxy` برای اعمال مستقیم S3 فقط روی localhost
-- `deploy/` — پکیج پایتون (`python3 -m deploy`) برای آپلود وب‌سایت استاتیک
+## معرفی پروژه
 
-## قوانین سخت
+- اپ وب فارسی RTL برای فضای ذخیره‌سازی سازگار با S3 آروان
+- ماژول‌ها در `js/` بدون bundler
+- `server.py` — فایل استاتیک و `/s3-proxy` (فقط localhost)
+- `deploy/` — `python3 -m deploy`
 
-1. **هرگز** `.deploy.env`، API key یا secret را commit نکنید.
-2. **هرگز** ورود credential روی میزبانی فقط-استاتیک بدون probeی `server.py` فعال نکنید.
-3. **املای محصول آروان** در UI فارسی (ذخیره‌سازی ابری، نه تبلیغات ژنریک «S3»).
-4. نکات Ceph: Lifecycle به `<Filter></Filter>` نیاز دارد؛ بعضی قابلیت‌های IAM پشتیبانی نمی‌شوند — پنل محدودیت‌ها در اپ.
-5. PR کوچک؛ سبک موجود (ES modules، بدون React، بدون build برای اپ).
+## قوانین
 
-## دستورات مفید
+1. commit نکردن `.deploy.env` و کلیدها
+2. غیرفعال نگه‌داشتن ورود credential روی میزبانی استاتیک بدون تشخیص `server.py`
+3. رعایت املای «ذخیره‌سازی ابری» و نام محصولات آروان در UI
+4. Lifecycle: عنصر `<Filter></Filter>` اجباری است؛ برخی قابلیت‌های IAM در سرویس پشتیبانی محدود است
+5. تغییرات کوچک و هم‌سبک با کد موجود
+
+## دستورات
 
 ```bash
 make serve
-make install && make deploy    # نیاز به .deploy.env با S3_*
+make install && make deploy
 make assets
 ```
 
-## فایل‌های اولویت‌دار
+## فایل‌های مرجع
 
-- `js/cloud-data.js` — actionها، کلاسترها، الگوها
-- `js/app.js` — اتصال UI
-- `js/s3-connection.js` — کلاینت S3 + تشخیص لوکال
-- `deploy/config.py` — آپلود، CORS، ACL عمومی
+- `js/cloud-data.js`
+- `js/app.js`
+- `js/s3-connection.js`
+- `deploy/config.py`
 
-## پیشنهاد policy
+## سیاست دسترسی
 
-کمترین دسترسی (least privilege). `Principal: "*"` و resourceهای wildcard را در UI یا کامنت واضح علامت بزنید.
+اصل کمترین دسترسی (least privilege). موارد `Principal: "*"` را در UI یا توضیحات شفاف کنید.
+
+</div>

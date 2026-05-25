@@ -7,7 +7,7 @@ function escapeXml(str) {
     .replace(/'/g, '&apos;');
 }
 
-/** فیلتر اجباری برای S3/Ceph — بدون prefix کل bucket */
+/** فیلتر اجباری برای S3 — بدون prefix کل bucket */
 function buildFilterParts(prefix) {
   const p = prefix?.trim();
   if (p) {
