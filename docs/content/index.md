@@ -63,7 +63,11 @@ make serve
 
 | صفحه | موضوع |
 |------|--------|
-| [راهنمای استفاده](guide.html) | گام‌به‌گام تمام بخش‌های رابط کاربری |
+| [راهنمای پنل](guide.html) | گام‌به‌گام UI با تصویر هر بخش |
+| [اعمال با کلاینت‌ها](clients.html) | AWS CLI، mc، s3cmd، rclone، اعمال مستقیم آروان |
+| [آموزش Bucket Policy](policy.html) | Statement، Effect، Principal، Action، Condition |
+| [آموزش CORS](cors.html) | Origin، preflight، ترتیب قوانین |
+| [آموزش Lifecycle](lifecycle.html) | انقضا، prefix، multipart |
 | [استقرار](deploy.html) | آپلود روی S3 و GitHub Pages |
 | [امنیت](security.html) | کلیدها، پروکسی لوکال، مسئولیت‌ها |
 | [مشارکت](contributing.html) | ارسال PR و مشارکت AI |

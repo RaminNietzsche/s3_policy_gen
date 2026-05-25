@@ -9,6 +9,7 @@ from pathlib import Path
 
 import markdown
 
+from clients_content import CLIENTS_MD
 from icons import ICONS, NAV_SLUGS
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -24,11 +25,17 @@ REPO_URL = "https://github.com/RaminNietzsche/s3_policy_gen"
 PAGES: list[tuple[str, str, str]] = [
     ("index", "index.md", "معرفی"),
     ("guide", "guide.md", "راهنمای استفاده"),
+    ("policy", "policy.md", "آموزش Bucket Policy"),
+    ("cors", "cors.md", "آموزش CORS"),
+    ("lifecycle", "lifecycle.md", "آموزش Lifecycle"),
+    ("clients", "_embedded_", "اعمال با کلاینت‌ها"),
     ("deploy", "deploy.md", "استقرار"),
     ("security", "security.md", "امنیت"),
     ("contributing", "contributing.md", "مشارکت"),
     ("third-party", "third-party.md", "شخص ثالث"),
 ]
+
+HERO_PAGES = frozenset({"index", "guide", "policy", "cors", "lifecycle", "clients"})
 
 MD = markdown.Markdown(
     extensions=["tables", "fenced_code", "sane_lists", "nl2br"],
@@ -50,7 +57,7 @@ FEATURE_CARDS = """
           <div class="feature-card" role="listitem">
             <div class="icon">{guide}</div>
             <h3>Lifecycle</h3>
-            <p>قوانین انتقال، انقضا و نسخه‌بندی اشیاء</p>
+            <p>قوانین انقضا و پاک‌سازی آپلود ناقص</p>
           </div>
         </div>
 """.format(**ICONS)
@@ -91,16 +98,23 @@ def page_hero(slug: str, title: str) -> str:
             {FEATURE_CARDS}
           </div>
           <div class="page-hero-visual">
-            <img src="assets/img/hero.svg" width="400" height="280" alt="" loading="eager" />
+            <img src="assets/img/ui-overview.png" alt="نمای کلی پنل s3_policy_gen" loading="eager" />
           </div>
         </section>
 """
-    if slug == "guide":
+    leads = {
+        "guide": "گام‌به‌گام پنل: اتصال، تب‌ها، خروجی و اعمال روی bucket — با تصویر هر بخش.",
+        "policy": "مفاهیم Statement، Effect، Principal، Action، Condition و نمونه‌های عملی.",
+        "cors": "چرا CORS لازم است، preflight، ترتیب قوانین و تفاوت با Policy.",
+        "lifecycle": "انقضای اشیاء، prefix، multipart و محدودیت‌های آروان.",
+        "clients": "اعمال مستقیم، AWS CLI، mc، s3cmd و rclone — دستورات کامل برای آروان.",
+    }
+    if slug in leads:
         return f"""
         <section class="page-hero page-hero-compact" aria-labelledby="hero-title">
           <div>
             <h1 id="hero-title">{title}</h1>
-            <p class="lead">گام‌به‌گام از اتصال تا خروجی JSON و استقرار روی باکت.</p>
+            <p class="lead">{leads[slug]}</p>
           </div>
         </section>
 """
@@ -278,12 +292,16 @@ def copy_assets() -> None:
 
 
 def build_page(slug: str, filename: str, title: str) -> None:
-    src = CONTENT / filename
-    if not src.is_file():
-        raise FileNotFoundError(src)
-    body = fix_links(MD.convert(src.read_text(encoding="utf-8")))
+    if filename == "_embedded_":
+        raw = CLIENTS_MD
+    else:
+        src = CONTENT / filename
+        if not src.is_file():
+            raise FileNotFoundError(src)
+        raw = src.read_text(encoding="utf-8")
+    body = fix_links(MD.convert(raw))
     MD.reset()
-    if slug in ("index", "guide"):
+    if slug in HERO_PAGES:
         body = strip_leading_h1(body)
     html_name = "index.html" if slug == "index" else f"{slug}.html"
     out = OUT / html_name
